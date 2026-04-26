@@ -15,7 +15,7 @@ CHAT_ID = 8290471340
 ET = pytz.timezone("America/New_York")
 
 # ── STATE FILE ──
-STATE_FILE = "/home/claude/sujin_bot/state.json"
+STATE_FILE = "/app/state.json"
 
 def load_state():
     if os.path.exists(STATE_FILE):
