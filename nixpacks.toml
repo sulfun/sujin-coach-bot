@@ -1,0 +1,5 @@
+[phases.setup]
+nixPkgs = ["python313"]
+
+[start]
+cmd = "python sujin_coach_bot.py"
