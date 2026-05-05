@@ -1,0 +1,944 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0c09" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="수진 OS" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="format-detection" content="telephone=no" />
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' fill='%230a0c09'/><text x='50%25' y='58%25' font-family='serif' font-size='120' fill='%23c9a55a' text-anchor='middle' font-weight='700'>S</text></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=DM+Mono:wght@300;400;500&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<title>이수진 OS</title>
+<style>
+:root{
+  --bg:#0a0c09; --bg2:#111410; --bg3:#181c14; --bg4:#202418;
+  --border:#222820; --border2:#303a28;
+  --gold:#c9a55a; --gold2:#e8c97a; --gold-dim:#5a4520;
+  --cream:#f0ead8; --text:#dde4cc; --text2:#aab898;
+  --muted:#607050; --muted2:#8a9878;
+  --honia:#4a8fd4; --sulfun:#c07050; --book:#7ab870; --self:#a870c8; --rest:#c8b860;
+  --shadow:0 10px 40px rgba(0,0,0,.4);
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--text);font-family:'Outfit','Noto Sans KR',system-ui,sans-serif;font-size:15px;line-height:1.5;min-height:100vh}
+body{padding-bottom:env(safe-area-inset-bottom)}
+button,input,textarea,select{font:inherit;color:inherit}
+button{background:none;border:none;cursor:pointer}
+a{color:var(--gold);text-decoration:none}
+.mono{font-family:'DM Mono',ui-monospace,monospace;font-weight:400}
+.cream{color:var(--cream)}.muted{color:var(--muted)}.muted2{color:var(--muted2)}.text2{color:var(--text2)}
+.gold{color:var(--gold)}.gold2{color:var(--gold2)}
+.tag-honia{color:var(--honia)} .tag-sulfun{color:var(--sulfun)} .tag-book{color:var(--book)} .tag-self{color:var(--self)} .tag-rest{color:var(--rest)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;vertical-align:middle;margin-right:4px}
+.dot-honia{background:var(--honia)}.dot-sulfun{background:var(--sulfun)}.dot-book{background:var(--book)}.dot-self{background:var(--self)}.dot-rest{background:var(--rest)}
+
+/* HEADER */
+header.app{
+  position:sticky;top:0;z-index:50;background:rgba(10,12,9,.85);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);padding:12px 18px;
+}
+.head-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{font-family:'Outfit',serif;font-weight:700;font-size:18px;color:var(--cream);letter-spacing:.5px}
+.brand .accent{color:var(--gold)}
+.clocks{display:flex;gap:14px;font-family:'DM Mono';font-size:13px;color:var(--text2)}
+.clocks span b{color:var(--cream);font-weight:500}
+.xp-pill{margin-left:auto;display:flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--gold-dim);border-radius:999px;color:var(--gold2);font-family:'DM Mono';font-size:13px}
+.xp-pill::before{content:'✦';color:var(--gold)}
+.icon-btn{padding:6px 10px;border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:14px}
+.icon-btn:hover{background:var(--bg3);color:var(--cream)}
+
+/* MODE SWITCHER */
+.mode-bar{display:flex;gap:10px;padding:14px 18px 0;max-width:1200px;margin:0 auto}
+.mode-btn{flex:1;padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text2);font-weight:500;letter-spacing:.3px}
+.mode-btn.on{background:var(--bg3);color:var(--cream);border-color:var(--gold-dim);box-shadow:0 0 0 1px rgba(201,165,90,.2) inset}
+
+/* SUB TABS */
+.sub-tabs{display:flex;gap:4px;padding:14px 18px 0;max-width:1200px;margin:0 auto;overflow-x:auto;scrollbar-width:none}
+.sub-tabs::-webkit-scrollbar{display:none}
+.sub-tab{padding:8px 14px;background:transparent;border:1px solid transparent;border-radius:8px;color:var(--muted2);white-space:nowrap;font-size:14px}
+.sub-tab.on{color:var(--gold2);border-color:var(--gold-dim);background:var(--bg2)}
+
+/* MAIN */
+main{max-width:1200px;margin:0 auto;padding:18px;display:flex;flex-direction:column;gap:18px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+.card h2{font-family:'Outfit';font-weight:600;font-size:16px;color:var(--cream);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.card h3{font-weight:500;font-size:14px;color:var(--text2);margin:14px 0 8px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+
+/* INPUTS */
+textarea,input[type=text],input[type=time],input[type=date],select{
+  width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:inherit;font-size:14px;
+}
+textarea{min-height:90px;resize:vertical;font-family:'DM Mono';font-weight:400}
+textarea:focus,input:focus,select:focus{outline:none;border-color:var(--gold-dim)}
+.btn{padding:10px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-weight:500;font-size:14px;transition:.15s}
+.btn:hover{background:var(--bg4);border-color:var(--gold-dim)}
+.btn.gold{background:var(--gold-dim);border-color:var(--gold);color:var(--cream)}
+.btn.gold:hover{background:var(--gold);color:var(--bg)}
+.btn.danger{color:#d97070;border-color:#5a3030}
+.btn.sm{padding:6px 10px;font-size:13px}
+.btn.full{width:100%}
+
+/* TASK LIST */
+.task{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;margin-bottom:8px}
+.task.done{opacity:.5}
+.task.done .t-text{text-decoration:line-through;color:var(--muted2)}
+.task input.t-text{flex:1;background:transparent;border:none;padding:4px 0}
+.task input.t-time{width:72px;background:transparent;border:none;color:var(--text2);font-family:'DM Mono';font-size:12px;text-align:center}
+.task select.t-tag{width:auto;padding:4px 8px;background:var(--bg);font-size:12px;border-radius:6px}
+.task .t-check{width:22px;height:22px;border:1.5px solid var(--border2);border-radius:6px;display:grid;place-items:center;color:var(--gold2);flex-shrink:0}
+.task .t-check.on{background:var(--gold-dim);border-color:var(--gold)}
+.task .t-del{color:var(--muted);font-size:18px;line-height:1;padding:0 4px}
+.task[data-from=telegram]{border-left:3px solid var(--honia)}
+.task .from-pill{font-size:10px;color:var(--honia);font-family:'DM Mono'}
+
+/* TIMELINE */
+.tl{display:grid;grid-template-columns:80px 80px 1fr;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--border)}
+.tl:last-child{border-bottom:none}
+.tl .et,.tl .kt{font-family:'DM Mono';font-size:13px;color:var(--text2)}
+.tl .kt{color:var(--muted)}
+.tl.now{background:var(--bg3);border-radius:8px;border-bottom-color:transparent}
+.tl.now .et{color:var(--gold2)}
+.tl.star::before{content:'★';color:var(--gold);margin-right:4px}
+
+/* WEEKLY THEME CARDS */
+.theme-card{padding:14px;border-radius:12px;background:var(--bg3);border:1px solid var(--border);min-height:90px;border-left:4px solid var(--muted)}
+.theme-card.today{border-color:var(--gold-dim);background:var(--bg4);box-shadow:0 0 24px rgba(201,165,90,.08)}
+.theme-card .day{font-family:'DM Mono';font-size:12px;color:var(--muted2);letter-spacing:1px}
+.theme-card .label{font-weight:600;color:var(--cream);font-size:15px;margin:4px 0}
+.theme-card .desc{font-size:13px;color:var(--text2)}
+
+/* GOAL CARDS */
+.goal-card{padding:14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px}
+.goal-card .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.goal-card .name{font-weight:600;color:var(--cream)}
+.goal-card .pct{font-family:'DM Mono';font-size:12px;color:var(--gold2)}
+.goal-card .bar{height:6px;background:var(--bg);border-radius:3px;overflow:hidden;margin-top:6px}
+.goal-card .bar > div{height:100%;background:var(--gold)}
+
+/* RECORDS */
+.streak-row{display:flex;gap:18px;align-items:center;padding:14px;background:var(--bg3);border-radius:10px}
+.streak-row .num{font-family:'Outfit';font-size:36px;font-weight:700;color:var(--gold2)}
+.streak-row .lbl{color:var(--text2);font-size:13px}
+.rec-day{display:grid;grid-template-columns:90px 1fr;gap:12px;padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px}
+.rec-day:last-child{border:none}
+.rec-day .d{font-family:'DM Mono';color:var(--gold-dim)}
+
+/* FOREST */
+.forest{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+@media(min-width:880px){.forest{grid-template-columns:repeat(4,1fr)}}
+.tree-card{padding:18px;background:var(--bg3);border:1px solid var(--border);border-radius:14px;text-align:center}
+.tree-card .name{font-weight:600;color:var(--cream)}
+.tree-card .stage{font-size:12px;color:var(--text2);margin-top:2px}
+.tree-card .xp{font-family:'DM Mono';color:var(--gold2);margin:6px 0}
+.tree-card svg{width:100%;height:160px;display:block;margin:8px auto}
+.tree-card .actions{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+.tree-card .actions .btn{font-size:12px;padding:5px 8px}
+.tree-card.honia{border-top:3px solid var(--honia)}
+.tree-card.sulfun{border-top:3px solid var(--sulfun)}
+.tree-card.book{border-top:3px solid var(--book)}
+.tree-card.self{border-top:3px solid var(--self)}
+
+/* MISSIONS */
+.mission-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.mission-col{background:var(--bg3);padding:14px;border-radius:12px;border:1px solid var(--border)}
+.mission-col h4{font-weight:600;color:var(--cream);margin-bottom:8px;display:flex;align-items:center;gap:6px;font-size:14px}
+.mission{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;font-size:13px}
+.mission.done{opacity:.55;text-decoration:line-through}
+.mission .xp{margin-left:auto;font-family:'DM Mono';color:var(--gold2);font-size:11px;flex-shrink:0}
+.mission .check{width:18px;height:18px;border:1.5px solid var(--border2);border-radius:5px;display:grid;place-items:center;color:var(--gold2);flex-shrink:0}
+.mission.done .check{background:var(--gold-dim);border-color:var(--gold)}
+.mission .del{color:var(--muted);padding:0 4px}
+
+/* SUBSTACK */
+.episode{display:flex;gap:10px;align-items:center;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;margin-bottom:6px}
+.episode .n{font-family:'DM Mono';color:var(--gold-dim);width:24px;text-align:right}
+.episode .ttl{flex:1;font-size:14px}
+.episode .st{font-size:12px;font-family:'DM Mono';padding:2px 8px;border-radius:999px}
+.episode .st.draft{background:var(--bg);color:var(--muted2)}
+.episode .st.scheduled{background:#2a3a18;color:var(--rest)}
+.episode .st.published{background:#1a3020;color:var(--book)}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+.modal-bg.on{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--gold-dim);border-radius:14px;padding:24px;max-width:520px;width:100%;max-height:90vh;overflow:auto}
+.modal h2{margin-bottom:14px}
+.modal label{display:block;color:var(--text2);font-size:13px;margin:10px 0 4px}
+
+/* TOAST */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--bg3);border:1px solid var(--gold-dim);color:var(--cream);padding:12px 20px;border-radius:999px;font-size:14px;transition:.3s;z-index:200;opacity:0;pointer-events:none}
+.toast.on{transform:translateX(-50%) translateY(0);opacity:1}
+
+@media(max-width:600px){
+  header.app{padding:10px 14px}
+  main{padding:14px}
+  .card{padding:14px}
+  .clocks{font-size:12px;gap:10px}
+  .brand{font-size:16px}
+  .tl{grid-template-columns:60px 60px 1fr;font-size:13px}
+}
+</style>
+</head>
+<body>
+
+<header class="app">
+  <div class="head-row">
+    <div class="brand">이수진 <span class="accent">OS</span></div>
+    <div class="clocks">
+      <span>ET <b id="clk-et">--:--</b></span>
+      <span>KT <b id="clk-kt">--:--</b></span>
+    </div>
+    <div class="xp-pill" id="xp-total">0 XP</div>
+    <button class="icon-btn" onclick="openSettings()">⚙</button>
+  </div>
+</header>
+
+<div class="mode-bar">
+  <button class="mode-btn on" data-mode="routine">📋 루틴</button>
+  <button class="mode-btn" data-mode="forest">🌲 숲</button>
+</div>
+
+<div class="sub-tabs" id="sub-tabs"></div>
+
+<main id="main"></main>
+
+<div class="modal-bg" id="modal-bg" onclick="if(event.target.id==='modal-bg')closeModal()">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ──────────────────────────────────────────────────────────
+// CONFIG
+// ──────────────────────────────────────────────────────────
+const BRIDGE = "/.netlify/functions/tg-bridge";
+const CLAUDE = "/.netlify/functions/claude";
+const POLL_MS = 60_000;
+
+const STORE_KEY = "sujinos.v1";
+const TOKEN_KEY = "metis.bridge_token";
+
+const TAGS = [
+  {id:"호니아", color:"honia", xp:10, label:"🇺🇸 호니아"},
+  {id:"술펀",   color:"sulfun", xp:8,  label:"🍶 술펀"},
+  {id:"운명책", color:"book",   xp:12, label:"📖 운명책"},
+  {id:"자기",   color:"self",   xp:5,  label:"🧠 자기"},
+  {id:"기타",   color:"rest",   xp:2,  label:"· 기타"},
+];
+const tagColor = id => (TAGS.find(t=>t.id===id)||TAGS[4]).color;
+const tagXP    = id => (TAGS.find(t=>t.id===id)||TAGS[4]).xp;
+
+const WEEKDAYS = ["일","월","화","수","목","금","토"];
+const WEEKLY_THEMES = [
+  {day:"일",label:"휴식+준비", desc:"밀린일 정리, 서브스택 2편 예약", color:"rest"},
+  {day:"월",label:"HOrN/혼", desc:"미국 핵심 — 투자자/IR/팔로업", color:"honia"},
+  {day:"화",label:"운명책/코칭", desc:"서브스택 발행 (화 트랙)", color:"book"},
+  {day:"수",label:"술펀/미팅", desc:"한국 사업 + 거래처/팀", color:"sulfun"},
+  {day:"목",label:"외부미팅", desc:"서브스택 발행 (목 트랙)", color:"sulfun"},
+  {day:"금",label:"혼/자유", desc:"호니아 정리 + 자유 시간", color:"honia"},
+  {day:"토",label:"휴식", desc:"완전 휴식 (선택)", color:"rest"},
+];
+
+const TIMELINE_ET = [
+  ["06:30","기상 + 모닝 루틴"],
+  ["07:00","아침밥 (핸드폰 없이)"],
+  ["07:30","계획 리뷰 15분"],
+  ["08:00","딥워크 블록 1"],
+  ["11:00","메일/슬랙 1차"],
+  ["12:00","요가/운동 ★"],
+  ["13:00","간식 + 전환"],
+  ["13:30","어드민"],
+  ["15:00","산책/개인시간"],
+  ["17:00","저녁밥"],
+  ["18:30","다운타임"],
+  ["20:00","한국 비즈 START (KT 09:00)"],
+  ["22:00","딥워크 블록 2"],
+  ["23:30","하루 마무리"],
+];
+
+const Q2_GOALS = {
+  honia:  {label:"HOrN", color:"honia",  target:"계약 10건 / 매출 10억", missions:[
+    ["계약 1건 성사",30],["계약 3건 달성",40],["계약 5건 달성",50],["계약 10건 완료",120],
+    ["월 매출 1억",60],["누적 10억",200],["파트너 미팅 5건",35],["미국 유통망 1개",80],
+  ]},
+  sulfun: {label:"술펀", color:"sulfun", target:"라운지 자동화 / 월 3천만", missions:[
+    ["SOP 3개 문서화",25],["팀 단독 운영 1주",50],["팀 단독 운영 1개월",80],
+    ["월매출 1천만",30],["월매출 2천만",50],["월매출 3천만",100],
+    ["팀 역할 재정의",20],["비상 매뉴얼",15],
+  ]},
+  book:   {label:"운명책", color:"book",   target:"$790 / $2000 패키지 런칭", missions:[
+    ["패키지 페이지 완성",30],["$790 첫 판매",60],["$790 3건",80],
+    ["$2000 첫 판매",100],["$2000 3건",120],["서브스택 20편",40],
+    ["원고 50%",50],["코칭 10세션",35],
+  ]},
+  self:   {label:"자기", color:"self",   target:"아쉬탕가 풀 / 59kg", missions:[
+    ["아쉬탕가 30일",40],["프라이머리 완주",50],["62kg",30],["60kg",40],
+    ["59kg 2주 유지",80],["수면 리듬 2주",20],["완전 휴식 10회",25],
+  ]},
+};
+
+const SUBSTACK = {
+  tue:["갑오일주가 창업을 선택한 이유","운명을 아는 것 vs 지배당하는 것","코칭이란 무엇인가","정재격이 돈을 다루는 법","창업가의 멘탈","관계의 사주","대운이 바뀌는 시기","코칭 세션에서 실제로","갑오일주의 2025-2026","지구윤회시스템"],
+  thu:["술펀은 왜 뉴욕으로 가는가","혼김이란 무엇인가","뉴욕에서 한국 술","미국 투자자에게 설명","미국 법인 설립기","뉴욕 한인 커뮤니티","술펀 라운지 — 공항","한국술 글로벌 포지셔닝","미국에서 한국 창업가","HONIA — 1년 후"],
+};
+
+const TREE_STAGES = [
+  {min:0,   name:"씨앗"},
+  {min:20,  name:"새싹"},
+  {min:60,  name:"묘목"},
+  {min:120, name:"나무"},
+  {min:200, name:"개화"},
+  {min:300, name:"열매"},
+  {min:450, name:"거목"},
+];
+const stageOf = xp => { let s=TREE_STAGES[0]; for(const x of TREE_STAGES) if(xp>=x.min) s=x; return s; };
+const stageIdx = xp => { let i=0; TREE_STAGES.forEach((x,j)=>{if(xp>=x.min)i=j;}); return i; };
+
+// ──────────────────────────────────────────────────────────
+// STATE
+// ──────────────────────────────────────────────────────────
+const today = () => {
+  const d = new Date(new Date().toLocaleString("en-US",{timeZone:"America/New_York"}));
+  return d.toISOString().slice(0,10);
+};
+const defaults = () => ({
+  mode:"routine",
+  routineTab:"today",
+  forestTab:"forest",
+  todayDate: today(),
+  rawTelegram:"",
+  tasks:[],            // {id,text,tag,time,done,from}
+  evening:"",
+  history:{},          // {YYYY-MM-DD: {tasks, evening, doneCount}}
+  streak:0, lastDone:"",
+  trees:{honia:0, sulfun:0, book:0, self:0},
+  missions:{},         // {domain: [{id,name,xp,done,custom}]}
+  episodes:{tue:[], thu:[]},  // {idx,title,status}
+  customMissions:{honia:[],sulfun:[],book:[],self:[]},
+});
+let S = load();
+function load(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return seed(defaults());
+    const s = {...defaults(), ...JSON.parse(raw)};
+    // rollover: if the stored todayDate is past, archive into history
+    const td = today();
+    if(s.todayDate && s.todayDate !== td){
+      const doneCount = (s.tasks||[]).filter(t=>t.done).length;
+      s.history = s.history || {};
+      s.history[s.todayDate] = {tasks:s.tasks||[], evening:s.evening||"", doneCount};
+      s.tasks = [];
+      s.evening = "";
+      s.rawTelegram = "";
+      s.todayDate = td;
+    }
+    if(!s.episodes.tue.length) s.episodes.tue = SUBSTACK.tue.map((t,i)=>({idx:i+1,title:t,status:"draft"}));
+    if(!s.episodes.thu.length) s.episodes.thu = SUBSTACK.thu.map((t,i)=>({idx:i+1,title:t,status:"draft"}));
+    for(const k of Object.keys(Q2_GOALS)){
+      if(!s.missions[k]) s.missions[k] = Q2_GOALS[k].missions.map(([n,x],i)=>({id:`${k}-${i}`,name:n,xp:x,done:false}));
+    }
+    return s;
+  }catch{ return seed(defaults()); }
+}
+function seed(s){
+  s.episodes.tue = SUBSTACK.tue.map((t,i)=>({idx:i+1,title:t,status:"draft"}));
+  s.episodes.thu = SUBSTACK.thu.map((t,i)=>({idx:i+1,title:t,status:"draft"}));
+  for(const k of Object.keys(Q2_GOALS)){
+    s.missions[k] = Q2_GOALS[k].missions.map(([n,x],i)=>({id:`${k}-${i}`,name:n,xp:x,done:false}));
+  }
+  return s;
+}
+function save(){ localStorage.setItem(STORE_KEY, JSON.stringify(S)); renderXP(); }
+
+// ──────────────────────────────────────────────────────────
+// NETWORK
+// ──────────────────────────────────────────────────────────
+const tokenHeader = () => {
+  const t = localStorage.getItem(TOKEN_KEY) || "";
+  return t ? {"X-Bridge-Token": t} : {};
+};
+async function bridgePullTasks(){
+  const t = localStorage.getItem(TOKEN_KEY);
+  if(!t) return [];
+  try{
+    const r = await fetch(`${BRIDGE}?action=dashboard_pull`, {headers:{...tokenHeader()}});
+    if(!r.ok) return [];
+    const j = await r.json();
+    return j.tasks || [];
+  }catch{ return []; }
+}
+async function bridgeNotifySaved(tasks, time){
+  const t = localStorage.getItem(TOKEN_KEY);
+  if(!t) return;
+  try{
+    await fetch(`${BRIDGE}?action=task_saved`, {
+      method:"POST",
+      headers:{"Content-Type":"application/json", ...tokenHeader()},
+      body: JSON.stringify({tasks, time: time||""}),
+    });
+  }catch{}
+}
+async function aiOrganize(rawText){
+  try{
+    const r = await fetch(CLAUDE, {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({text: rawText}),
+    });
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const j = await r.json();
+    // expected response shape: {tasks:[{text,tag,time?}]}
+    if(Array.isArray(j.tasks)) return j.tasks;
+    if(j.content && Array.isArray(j.content)){
+      // raw Anthropic passthrough — try parse JSON in first text block
+      try{ const parsed = JSON.parse(j.content[0].text); if(Array.isArray(parsed.tasks)) return parsed.tasks; }catch{}
+    }
+    return null;
+  }catch(e){
+    toast("AI 정리 실패: "+e.message);
+    return null;
+  }
+}
+
+// ──────────────────────────────────────────────────────────
+// HELPERS
+// ──────────────────────────────────────────────────────────
+const uid = () => Math.random().toString(36).slice(2,9);
+const esc = s => String(s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+function toast(msg){
+  const el = document.getElementById("toast");
+  el.textContent = msg; el.classList.add("on");
+  clearTimeout(toast._t); toast._t = setTimeout(()=>el.classList.remove("on"), 2400);
+}
+function totalXP(){
+  let xp = 0;
+  for(const k of Object.keys(S.trees)) xp += S.trees[k];
+  return xp;
+}
+function nowET(){ return new Date(new Date().toLocaleString("en-US",{timeZone:"America/New_York"})); }
+function nowKT(){ return new Date(new Date().toLocaleString("en-US",{timeZone:"Asia/Seoul"})); }
+const fmtClock = d => `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+
+// ──────────────────────────────────────────────────────────
+// CLOCKS + XP
+// ──────────────────────────────────────────────────────────
+function tickClocks(){
+  document.getElementById("clk-et").textContent = fmtClock(nowET());
+  document.getElementById("clk-kt").textContent = fmtClock(nowKT());
+}
+function renderXP(){ document.getElementById("xp-total").textContent = `${totalXP()} XP`; }
+
+// ──────────────────────────────────────────────────────────
+// TABS
+// ──────────────────────────────────────────────────────────
+const TABS = {
+  routine: [
+    ["today","★ 오늘"], ["day","하루"], ["week","주간"],
+    ["month","월/분기/연간"], ["records","기록"],
+  ],
+  forest: [
+    ["forest","🌲 숲"], ["board","📋 보드"], ["substack","✍ 서브스택"], ["missions","⚔ 미션"],
+  ],
+};
+function setMode(m){ S.mode = m; save(); render(); }
+function setSubTab(id){
+  if(S.mode==="routine") S.routineTab = id; else S.forestTab = id;
+  save(); render();
+}
+function activeSub(){ return S.mode==="routine" ? S.routineTab : S.forestTab; }
+
+// ──────────────────────────────────────────────────────────
+// RENDER
+// ──────────────────────────────────────────────────────────
+function render(){
+  document.querySelectorAll(".mode-btn").forEach(b=>b.classList.toggle("on", b.dataset.mode===S.mode));
+  const tabs = TABS[S.mode];
+  document.getElementById("sub-tabs").innerHTML = tabs.map(([id,lbl])=>
+    `<button class="sub-tab ${activeSub()===id?"on":""}" data-tab="${id}">${esc(lbl)}</button>`
+  ).join("");
+  const main = document.getElementById("main");
+  if(S.mode==="routine"){
+    if(activeSub()==="today")    main.innerHTML = viewToday();
+    else if(activeSub()==="day") main.innerHTML = viewDay();
+    else if(activeSub()==="week")main.innerHTML = viewWeek();
+    else if(activeSub()==="month") main.innerHTML = viewMonth();
+    else if(activeSub()==="records") main.innerHTML = viewRecords();
+  } else {
+    if(activeSub()==="forest")   main.innerHTML = viewForest();
+    else if(activeSub()==="board") main.innerHTML = viewBoard();
+    else if(activeSub()==="substack") main.innerHTML = viewSubstack();
+    else if(activeSub()==="missions") main.innerHTML = viewMissionsEditor();
+  }
+  bindEvents();
+  renderXP();
+}
+
+// ──────────────────────────────────────────────────────────
+// VIEWS — ROUTINE
+// ──────────────────────────────────────────────────────────
+function viewToday(){
+  const d = nowET();
+  const wd = WEEKDAYS[d.getDay()];
+  const theme = WEEKLY_THEMES.find(t=>t.day===wd);
+  const tasksHtml = S.tasks.map(taskRow).join("") || `<div class="muted2" style="padding:12px">아직 태스크 없음. 위에서 텔레그램 메모를 붙여넣고 <b>AI로 정리</b>를 누르거나, ➕ 직접 추가.</div>`;
+  return `
+  <section class="card">
+    <h2>★ 오늘 — ${S.todayDate} <span class="muted2" style="font-weight:400">· ${wd} · <span class="dot dot-${theme.color}"></span>${esc(theme.label)}</span></h2>
+    <h3>1. 텔레그램 메모 붙여넣기</h3>
+    <textarea id="raw-tg" placeholder="텔레그램에서 받은 메모/대화를 통째로 붙여넣어. AI가 태스크로 정리해줌.">${esc(S.rawTelegram)}</textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="btn gold" id="btn-ai">✨ AI로 정리</button>
+      <button class="btn sm" id="btn-clear-raw">비우기</button>
+      <button class="btn sm" id="btn-pull">⟳ 텔레그램 동기화</button>
+    </div>
+  </section>
+  <section class="card">
+    <h2>2. 오늘의 태스크 <span class="muted2 mono" style="font-size:12px;font-weight:400">${S.tasks.filter(t=>t.done).length}/${S.tasks.length}</span></h2>
+    <div id="task-list">${tasksHtml}</div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn sm" id="btn-add-task">➕ 태스크 추가</button>
+    </div>
+  </section>
+  <section class="card">
+    <h2>3. 저녁 기록</h2>
+    <textarea id="evening" placeholder="오늘 어땠어? 잘된 거 / 안된 거 / 내일은…">${esc(S.evening)}</textarea>
+  </section>
+  <section class="card" style="background:transparent;border-color:var(--gold-dim)">
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <div class="muted2" style="font-size:13px">저장하면 텔레그램 봇으로 푸시됨</div>
+      <button class="btn gold" id="btn-save">💾 저장 + 봇 푸시</button>
+    </div>
+  </section>`;
+}
+function taskRow(t){
+  return `<div class="task ${t.done?"done":""}" data-id="${t.id}" data-from="${esc(t.from||"")}">
+    <button class="t-check ${t.done?"on":""}" data-act="toggle">${t.done?"✓":""}</button>
+    <input class="t-text" data-act="text" value="${esc(t.text)}" />
+    <input class="t-time" data-act="time" placeholder="--:--" value="${esc(t.time||"")}" />
+    <select class="t-tag" data-act="tag">${TAGS.map(g=>`<option value="${g.id}" ${g.id===t.tag?"selected":""}>${esc(g.label)}</option>`).join("")}</select>
+    ${t.from==="telegram"?`<span class="from-pill">tg</span>`:""}
+    <button class="t-del" data-act="del" title="삭제">×</button>
+  </div>`;
+}
+function viewDay(){
+  const et = nowET();
+  const curMin = et.getHours()*60 + et.getMinutes();
+  return `<section class="card">
+    <h2>하루 타임라인 <span class="muted2" style="font-weight:400;font-size:13px">ET ↔ KT (+13h)</span></h2>
+    <div>${TIMELINE_ET.map(([t,label])=>{
+      const [hh,mm] = t.split(":").map(Number);
+      const min = hh*60+mm;
+      const ktDate = new Date(Date.UTC(2024,0,1,hh+13,mm));
+      const kt = `${String(ktDate.getUTCHours()).padStart(2,"0")}:${String(ktDate.getUTCMinutes()).padStart(2,"0")}`;
+      const next = TIMELINE_ET[TIMELINE_ET.indexOf(TIMELINE_ET.find(x=>x[0]===t))+1];
+      let nextMin = next ? Number(next[0].split(":")[0])*60+Number(next[0].split(":")[1]) : 24*60;
+      const isNow = curMin>=min && curMin<nextMin;
+      const isStar = label.includes("★");
+      return `<div class="tl ${isNow?"now":""} ${isStar?"star":""}"><div class="et">${t}</div><div class="kt">${kt}</div><div>${esc(label.replace("★","").trim())}</div></div>`;
+    }).join("")}</div>
+  </section>`;
+}
+function viewWeek(){
+  const wd = WEEKDAYS[nowET().getDay()];
+  return `<section class="card">
+    <h2>주간 테마</h2>
+    <div class="grid-3">${WEEKLY_THEMES.map(t=>`
+      <div class="theme-card ${t.day===wd?"today":""}" style="border-left-color:var(--${t.color})">
+        <div class="day">${t.day===wd?"오늘 · ":""}${t.day}요일</div>
+        <div class="label">${esc(t.label)}</div>
+        <div class="desc">${esc(t.desc)}</div>
+      </div>`).join("")}
+    </div>
+  </section>`;
+}
+function viewMonth(){
+  const goalCard = (k,g)=>{
+    const ms = S.missions[k]||[];
+    const total = ms.reduce((a,b)=>a+b.xp,0);
+    const got = ms.filter(m=>m.done).reduce((a,b)=>a+b.xp,0);
+    const pct = total ? Math.round(got/total*100) : 0;
+    return `<div class="goal-card">
+      <div class="head"><div class="name"><span class="dot dot-${g.color}"></span>${esc(g.label)}</div><div class="pct">${got}/${total} XP · ${pct}%</div></div>
+      <div class="muted2" style="font-size:13px">${esc(g.target)}</div>
+      <div class="bar"><div style="width:${pct}%;background:var(--${g.color})"></div></div>
+    </div>`;
+  };
+  return `
+    <section class="card"><h2>Q2 (2026 Apr–Jun) 목표</h2>
+      <div class="grid-2">${Object.entries(Q2_GOALS).map(([k,g])=>goalCard(k,g)).join("")}</div>
+    </section>
+    <section class="card"><h2>분기/연간 메모</h2>
+      <div class="muted2" style="font-size:13px">분기 키 마일스톤 4개 · 연간 큰 그림 3가지를 ⚔ 미션 탭에서 도메인별로 추가/편집할 수 있어.</div>
+    </section>`;
+}
+function viewRecords(){
+  const days = Object.keys(S.history||{}).sort().reverse();
+  return `<section class="card">
+    <h2>스트릭</h2>
+    <div class="streak-row">
+      <div><div class="num">🔥${S.streak}</div><div class="lbl">연속 일</div></div>
+      <div style="flex:1"></div>
+      <div class="muted2 mono" style="font-size:13px">마지막 완료: ${esc(S.lastDone||"—")}</div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>날짜별 기록</h2>
+    ${days.length===0 ? `<div class="muted2" style="padding:12px">기록 없음.</div>` :
+      days.map(d=>{
+        const r = S.history[d];
+        return `<div class="rec-day">
+          <div class="d">${esc(d)}</div>
+          <div>완료 <b class="cream">${r.doneCount||0}</b>개 · ${esc((r.tasks||[]).map(t=>t.text).slice(0,3).join(" · ")||"-")}${(r.evening?` · <span class="muted2">"${esc(r.evening.slice(0,40))}"</span>`:"")}</div>
+        </div>`;
+      }).join("")}
+  </section>`;
+}
+
+// ──────────────────────────────────────────────────────────
+// VIEWS — FOREST
+// ──────────────────────────────────────────────────────────
+function treeSVG(xp){
+  const i = stageIdx(xp);
+  // 7 stages: seed → sprout → sapling → tree → bloom → fruit → giant
+  const trunk = i>=1 ? `<line x1="60" y1="120" x2="60" y2="${120-Math.min(80, 10+i*10)}" stroke="#5a4a2c" stroke-width="${1+i*0.7}"/>` : "";
+  const branches = i>=2 ? `
+    <line x1="60" y1="${110-i*4}" x2="${30-i*2}" y2="${85-i*4}" stroke="#5a4a2c" stroke-width="${i>=4?2:1.4}"/>
+    <line x1="60" y1="${110-i*4}" x2="${90+i*2}" y2="${85-i*4}" stroke="#5a4a2c" stroke-width="${i>=4?2:1.4}"/>` : "";
+  const branches2 = i>=3 ? `
+    <line x1="60" y1="${95-i*3}" x2="${20-i}" y2="${60-i*3}" stroke="#5a4a2c" stroke-width="1.5"/>
+    <line x1="60" y1="${95-i*3}" x2="${100+i}" y2="${60-i*3}" stroke="#5a4a2c" stroke-width="1.5"/>` : "";
+  let leaves = "";
+  if(i>=1) leaves += `<circle cx="60" cy="${122 - (i===1?0:0)}" r="${i===0?2:0}" fill="#7ab870"/>`;
+  if(i>=1) leaves += `<ellipse cx="60" cy="${110 - i*4 - 6}" rx="${5+i*2}" ry="${4+i*1.5}" fill="#7ab870" opacity=".85"/>`;
+  if(i>=3){
+    leaves += `<circle cx="35" cy="60" r="${10+i}" fill="#7ab870" opacity=".85"/>`;
+    leaves += `<circle cx="85" cy="55" r="${10+i}" fill="#8ec880" opacity=".85"/>`;
+    leaves += `<circle cx="60" cy="40" r="${12+i}" fill="#7ab870" opacity=".9"/>`;
+  }
+  let flowers = "";
+  if(i>=4){
+    const n = i===4?7 : i>=6?10:9;
+    for(let k=0;k<n;k++){
+      const x = 30 + Math.random()*60, y = 35 + Math.random()*40;
+      flowers += `<circle cx="${x}" cy="${y}" r="2.5" fill="#e8c97a"/>`;
+    }
+  }
+  let fruit = "";
+  if(i>=5){
+    const n = i===5?9:13;
+    for(let k=0;k<n;k++){
+      const x = 25 + Math.random()*70, y = 40 + Math.random()*45;
+      fruit += `<circle cx="${x}" cy="${y}" r="3" fill="#c07050"/>`;
+    }
+  }
+  const glow = i>=6 ? `<circle cx="60" cy="65" r="55" fill="url(#glow)" opacity=".5"/>` : "";
+  return `<svg viewBox="0 0 120 130" preserveAspectRatio="xMidYMid meet">
+    <defs><radialGradient id="glow"><stop offset="0%" stop-color="#e8c97a" stop-opacity=".5"/><stop offset="100%" stop-color="#e8c97a" stop-opacity="0"/></radialGradient></defs>
+    ${glow}
+    <ellipse cx="60" cy="125" rx="50" ry="3" fill="#181c14"/>
+    ${trunk}${branches}${branches2}${leaves}${flowers}${fruit}
+    ${i===0 ? `<circle cx="60" cy="120" r="3" fill="#7ab870"/>` : ""}
+  </svg>`;
+}
+function viewForest(){
+  const cards = [
+    {k:"honia", lbl:"🇺🇸 호니아"},
+    {k:"sulfun",lbl:"🍶 술펀"},
+    {k:"book",  lbl:"📖 운명책"},
+    {k:"self",  lbl:"🧠 자기"},
+  ];
+  return `<section class="card">
+    <h2>🌲 숲 — XP로 자라는 나무 4그루</h2>
+    <div class="muted2" style="font-size:13px;margin-bottom:14px">씨앗 → 새싹(20) → 묘목(60) → 나무(120) → 개화(200) → 열매(300) → 거목(450)</div>
+    <div class="forest">
+      ${cards.map(c=>{
+        const xp = S.trees[c.k]||0;
+        const st = stageOf(xp);
+        const next = TREE_STAGES[stageIdx(xp)+1];
+        return `<div class="tree-card ${c.k}">
+          <div class="name">${esc(c.lbl)}</div>
+          <div class="stage">${esc(st.name)}${next?` · 다음 ${next.min} XP`:" · MAX"}</div>
+          ${treeSVG(xp)}
+          <div class="xp">${xp} XP</div>
+          <div class="actions">
+            <button class="btn sm" data-xp="${c.k}" data-amt="5">+5</button>
+            <button class="btn sm" data-xp="${c.k}" data-amt="10">+10</button>
+            <button class="btn sm" data-xp="${c.k}" data-amt="20">+20</button>
+            <button class="btn sm danger" data-xp="${c.k}" data-amt="-5">−5</button>
+          </div>
+        </div>`;
+      }).join("")}
+    </div>
+  </section>`;
+}
+function viewBoard(){
+  return `<section class="card">
+    <h2>📋 Q2 미션 보드</h2>
+    <div class="mission-grid">
+      ${Object.entries(Q2_GOALS).map(([k,g])=>{
+        const ms = S.missions[k]||[];
+        return `<div class="mission-col">
+          <h4><span class="dot dot-${g.color}"></span>${esc(g.label)}</h4>
+          ${ms.map(m=>`<div class="mission ${m.done?"done":""}" data-mid="${m.id}" data-dom="${k}">
+            <button class="check" data-act="toggle">${m.done?"✓":""}</button>
+            <span>${esc(m.name)}</span>
+            <span class="xp">+${m.xp}</span>
+          </div>`).join("")}
+        </div>`;
+      }).join("")}
+    </div>
+  </section>`;
+}
+function viewSubstack(){
+  const col = (key, label)=>{
+    const eps = S.episodes[key]||[];
+    return `<div class="mission-col">
+      <h4>${esc(label)}</h4>
+      ${eps.map(e=>`<div class="episode" data-trk="${key}" data-idx="${e.idx}">
+        <div class="n">${e.idx}.</div>
+        <div class="ttl">${esc(e.title)}</div>
+        <select class="st ${esc(e.status)}" data-act="status" style="background:transparent;border:none;color:inherit">
+          ${["draft","scheduled","published"].map(s=>`<option value="${s}" ${s===e.status?"selected":""}>${s}</option>`).join("")}
+        </select>
+      </div>`).join("")}
+    </div>`;
+  };
+  return `<section class="card">
+    <h2>✍ 서브스택 트랙</h2>
+    <div class="mission-grid">
+      ${col("tue","화 트랙 — 운명책 & 라이프코칭")}
+      ${col("thu","목 트랙 — 술펀공유회 & 미국법인")}
+    </div>
+  </section>`;
+}
+function viewMissionsEditor(){
+  return `<section class="card">
+    <h2>⚔ 미션 편집 — 도메인별 추가/삭제</h2>
+    <div class="mission-grid">
+    ${Object.entries(Q2_GOALS).map(([k,g])=>{
+      const ms = S.missions[k]||[];
+      return `<div class="mission-col">
+        <h4><span class="dot dot-${g.color}"></span>${esc(g.label)}</h4>
+        ${ms.map(m=>`<div class="mission" data-mid="${m.id}" data-dom="${k}">
+          <span style="flex:1">${esc(m.name)}</span>
+          <span class="xp">+${m.xp}</span>
+          <button class="del" data-act="delete">×</button>
+        </div>`).join("")}
+        <div class="row" style="margin-top:8px">
+          <input type="text" placeholder="새 미션" data-add-name="${k}" />
+          <input type="text" placeholder="XP" data-add-xp="${k}" style="width:80px" />
+          <button class="btn sm" data-add-btn="${k}">+</button>
+        </div>
+      </div>`;
+    }).join("")}
+    </div>
+  </section>`;
+}
+
+// ──────────────────────────────────────────────────────────
+// EVENTS
+// ──────────────────────────────────────────────────────────
+function bindEvents(){
+  document.querySelectorAll(".mode-btn").forEach(b=> b.onclick = ()=> setMode(b.dataset.mode));
+  document.querySelectorAll(".sub-tab").forEach(b=> b.onclick = ()=> setSubTab(b.dataset.tab));
+
+  // Today
+  const raw = document.getElementById("raw-tg");
+  if(raw) raw.oninput = e => { S.rawTelegram = e.target.value; save(); };
+  const eve = document.getElementById("evening");
+  if(eve) eve.oninput = e => { S.evening = e.target.value; save(); };
+  const ai = document.getElementById("btn-ai");
+  if(ai) ai.onclick = onAIOrganize;
+  const clr = document.getElementById("btn-clear-raw");
+  if(clr) clr.onclick = ()=>{ S.rawTelegram=""; save(); render(); };
+  const pull = document.getElementById("btn-pull");
+  if(pull) pull.onclick = ()=>{ pullAndMerge(true); };
+  const addT = document.getElementById("btn-add-task");
+  if(addT) addT.onclick = ()=>{ S.tasks.push({id:uid(),text:"",tag:"기타",time:"",done:false}); save(); render(); };
+  const sv = document.getElementById("btn-save");
+  if(sv) sv.onclick = onSaveDay;
+
+  // task rows
+  document.querySelectorAll(".task").forEach(row=>{
+    const id = row.dataset.id;
+    row.querySelectorAll("[data-act]").forEach(el=>{
+      const act = el.dataset.act;
+      if(act==="toggle") el.onclick = ()=>{
+        const t = S.tasks.find(x=>x.id===id); if(!t) return;
+        t.done = !t.done;
+        if(t.done) awardForTask(t);
+        save(); render();
+      };
+      if(act==="del") el.onclick = ()=>{
+        S.tasks = S.tasks.filter(x=>x.id!==id); save(); render();
+      };
+      if(act==="text") el.oninput = e=>{ const t=S.tasks.find(x=>x.id===id); if(t){t.text=e.target.value;save();} };
+      if(act==="time") el.oninput = e=>{ const t=S.tasks.find(x=>x.id===id); if(t){t.time=e.target.value;save();} };
+      if(act==="tag")  el.onchange = e=>{ const t=S.tasks.find(x=>x.id===id); if(t){t.tag=e.target.value;save();render();} };
+    });
+  });
+
+  // forest XP buttons
+  document.querySelectorAll("[data-xp]").forEach(b=> b.onclick = ()=>{
+    const k = b.dataset.xp, amt = Number(b.dataset.amt||0);
+    S.trees[k] = Math.max(0, (S.trees[k]||0) + amt);
+    save(); render();
+  });
+  // mission toggle (board)
+  document.querySelectorAll(".mission [data-act=toggle]").forEach(b=> b.onclick = ()=>{
+    const m = b.closest(".mission");
+    const id = m.dataset.mid, dom = m.dataset.dom;
+    const ms = S.missions[dom]; if(!ms) return;
+    const it = ms.find(x=>x.id===id); if(!it) return;
+    it.done = !it.done;
+    S.trees[dom] = Math.max(0, (S.trees[dom]||0) + (it.done? it.xp : -it.xp));
+    save(); render();
+    toast(it.done? `+${it.xp} XP — ${it.name}` : `−${it.xp} XP`);
+  });
+  // mission delete (editor)
+  document.querySelectorAll(".mission [data-act=delete]").forEach(b=> b.onclick = ()=>{
+    const m = b.closest(".mission");
+    const id = m.dataset.mid, dom = m.dataset.dom;
+    S.missions[dom] = (S.missions[dom]||[]).filter(x=>x.id!==id);
+    save(); render();
+  });
+  // mission add (editor)
+  document.querySelectorAll("[data-add-btn]").forEach(b=> b.onclick = ()=>{
+    const k = b.dataset.addBtn;
+    const name = document.querySelector(`[data-add-name="${k}"]`).value.trim();
+    const xp = Number(document.querySelector(`[data-add-xp="${k}"]`).value)||10;
+    if(!name) return;
+    S.missions[k] = S.missions[k] || [];
+    S.missions[k].push({id:`${k}-${uid()}`, name, xp, done:false, custom:true});
+    save(); render();
+  });
+  // substack status
+  document.querySelectorAll(".episode [data-act=status]").forEach(s=> s.onchange = e=>{
+    const row = s.closest(".episode");
+    const trk = row.dataset.trk, idx = Number(row.dataset.idx);
+    const ep = (S.episodes[trk]||[]).find(x=>x.idx===idx);
+    if(ep){ ep.status = e.target.value; save(); render(); }
+  });
+}
+
+function awardForTask(t){
+  const dom = ({"호니아":"honia","술펀":"sulfun","운명책":"book","자기":"self","기타":null})[t.tag];
+  if(dom){
+    S.trees[dom] = (S.trees[dom]||0) + tagXP(t.tag);
+    toast(`+${tagXP(t.tag)} XP — ${t.tag}`);
+  }
+}
+
+async function onAIOrganize(){
+  const btn = document.getElementById("btn-ai");
+  if(!S.rawTelegram.trim()){ toast("붙여넣은 메모가 비어있어"); return; }
+  btn.disabled = true; btn.textContent = "정리 중...";
+  const tasks = await aiOrganize(S.rawTelegram);
+  btn.disabled = false; btn.textContent = "✨ AI로 정리";
+  if(!tasks){ return; }
+  const valid = tasks.filter(x=>x && x.text).map(x=>({
+    id:uid(), text:String(x.text), tag:TAGS.find(g=>g.id===x.tag)?x.tag:"기타",
+    time:String(x.time||""), done:false,
+  }));
+  S.tasks = S.tasks.concat(valid);
+  save(); render();
+  toast(`태스크 ${valid.length}개 추가됨`);
+}
+
+async function onSaveDay(){
+  const today_ = today();
+  const doneCount = S.tasks.filter(t=>t.done).length;
+  S.history = S.history || {};
+  S.history[today_] = {tasks:S.tasks.map(t=>({...t})), evening:S.evening, doneCount};
+  if(doneCount > 0){
+    if(S.lastDone !== today_){
+      S.streak = (S.lastDone === yesterday() ? S.streak : 0) + 1;
+      S.lastDone = today_;
+    }
+  }
+  save();
+  // notify bot
+  const payload = S.tasks.filter(t=>t.text).map(t=>({text:t.text, tag:t.tag, time:t.time||""}));
+  const time = new Date(new Date().toLocaleString("en-US",{timeZone:"America/New_York"})).toISOString().slice(11,16);
+  await bridgeNotifySaved(payload, time);
+  toast("저장됨 + 봇 푸시 완료");
+}
+function yesterday(){
+  const d = nowET(); d.setDate(d.getDate()-1);
+  return d.toISOString().slice(0,10);
+}
+
+// ──────────────────────────────────────────────────────────
+// TELEGRAM POLL
+// ──────────────────────────────────────────────────────────
+async function pullAndMerge(showToast){
+  const tasks = await bridgePullTasks();
+  if(!tasks.length){ if(showToast) toast("새 메모 없음"); return; }
+  const added = tasks.map(x=>({
+    id:uid(),
+    text:String(x.text||""),
+    tag: TAGS.find(g=>g.id===x.tag) ? x.tag : "기타",
+    time:"", done:false, from:"telegram",
+  }));
+  S.tasks = S.tasks.concat(added);
+  save(); render();
+  toast(`텔레그램 메모 ${added.length}개 합침`);
+}
+
+// ──────────────────────────────────────────────────────────
+// SETTINGS MODAL
+// ──────────────────────────────────────────────────────────
+function openSettings(){
+  const t = localStorage.getItem(TOKEN_KEY) || "";
+  document.getElementById("modal-content").innerHTML = `
+    <h2>⚙ 설정</h2>
+    <label>Bridge Token (Netlify <code>BRIDGE_TOKEN</code>과 동일값)</label>
+    <input type="text" id="set-token" value="${esc(t)}" placeholder="metis-bridge-token-..." />
+    <div class="muted2" style="font-size:12px;margin-top:6px">브라우저에 저장돼서 텔레그램 동기화 / 저장 시 헤더로 전송됨.</div>
+    <div class="row" style="margin-top:18px;justify-content:flex-end">
+      <button class="btn sm" onclick="closeModal()">취소</button>
+      <button class="btn gold sm" id="btn-save-set">저장</button>
+    </div>
+    <hr style="margin:18px 0;border:none;border-top:1px solid var(--border)">
+    <label>위험: 모든 로컬 데이터 초기화</label>
+    <button class="btn sm danger" id="btn-reset">전체 초기화</button>
+  `;
+  document.getElementById("modal-bg").classList.add("on");
+  document.getElementById("btn-save-set").onclick = ()=>{
+    const v = document.getElementById("set-token").value.trim();
+    if(v) localStorage.setItem(TOKEN_KEY, v); else localStorage.removeItem(TOKEN_KEY);
+    closeModal(); toast("토큰 저장됨"); pullAndMerge(false);
+  };
+  document.getElementById("btn-reset").onclick = ()=>{
+    if(!confirm("모든 로컬 데이터를 지웁니다. 계속?")) return;
+    localStorage.removeItem(STORE_KEY);
+    location.reload();
+  };
+}
+function closeModal(){ document.getElementById("modal-bg").classList.remove("on"); }
+window.openSettings = openSettings;
+window.closeModal = closeModal;
+
+// ──────────────────────────────────────────────────────────
+// BOOT
+// ──────────────────────────────────────────────────────────
+tickClocks();
+setInterval(tickClocks, 15_000);
+render();
+pullAndMerge(false);
+setInterval(()=>pullAndMerge(false), POLL_MS);
+</script>
+</body>
+</html>
