@@ -9,10 +9,24 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, filters, ContextTypes
 
-BOT_TOKEN = "8537414013:AAEvUu8kKiJXyWAU0JA2WExA9RLY-lZWxlY"
-CHAT_ID = 8290471340
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
+CHAT_ID = int(os.environ.get("CHAT_ID", "0") or 0)
 ET = pytz.timezone("America/New_York")
 STATE_FILE = "/app/state.json"
+
+# ── METIS BRIDGE ──
+BRIDGE_URL = os.environ.get("METIS_BRIDGE_URL", "")
+BRIDGE_TOKEN = os.environ.get("METIS_BRIDGE_TOKEN", "")
+
+WEEKDAY_THEME = {
+    0: "월 — HOrN/혼 (미국)",
+    1: "화 — 운명책/코칭 (서브스택 발행)",
+    2: "수 — 술펀/미팅",
+    3: "목 — 외부미팅 (서브스택 발행)",
+    4: "금 — 혼/자유",
+    5: "토 — 휴식",
+    6: "일 — 밀린일+준비 (서브스택 2편 예약)",
+}
 
 # ── STATE ──
 def load_state():
@@ -75,6 +89,36 @@ async def ask_claude(user_msg, history):
                 return f"API 오류: {data.get('error', {}).get('message', '알 수 없음')}"
     except Exception as e:
         return f"연결 오류: {str(e)[:50]}"
+
+# ── METIS BRIDGE (Netlify) ──
+async def bridge_push_task(text, tag="기타"):
+    if not BRIDGE_URL or not BRIDGE_TOKEN:
+        return False, "bridge not configured"
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.post(
+                f"{BRIDGE_URL}?action=push_task",
+                headers={"X-Bridge-Token": BRIDGE_TOKEN, "Content-Type": "application/json"},
+                json={"text": text, "tag": tag},
+            )
+            return resp.status_code == 200, resp.text[:160]
+    except Exception as e:
+        return False, str(e)[:160]
+
+async def bridge_pull_events():
+    if not BRIDGE_URL or not BRIDGE_TOKEN:
+        return []
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.get(
+                f"{BRIDGE_URL}?action=bot_pull",
+                headers={"X-Bridge-Token": BRIDGE_TOKEN},
+            )
+            if resp.status_code == 200:
+                return resp.json().get("events", []) or []
+    except Exception:
+        pass
+    return []
 
 # ── TODO HELPERS ──
 STATUS_CYCLE = ["🔴", "🟠", "🟡", "✅"]
@@ -146,8 +190,10 @@ async def cmd_start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         "/morning — 아침 체크\n"
         "/todos — 투두 관리\n"
         "/add — 투두 추가\n"
+        "/memo — 대시보드 푸시 (또는 '메모: ...')\n"
         "/done — 오늘 완료 체크\n"
         "/streak — 스트릭 확인\n\n"
+        "스케줄(ET): 06:30 모닝 · 08:00 브리핑 · 12:00 요가 · 21:00 저녁 · 00:00 자정체크\n\n"
         "그냥 말 걸어도 돼."
     )
 
@@ -185,6 +231,37 @@ async def cmd_streak(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         f"🔥 스트릭: *{state['streak']}일 연속*\n마지막 완료: {state['last_done_date'] or '아직 없음'}",
         parse_mode="Markdown"
     )
+
+async def _process_memo(update, raw_text):
+    text = (raw_text or "").strip()
+    if not text:
+        await update.message.reply_text("메모 내용이 비어있어.")
+        return
+    tag = "기타"
+    if "#" in text:
+        parts = text.rsplit("#", 1)
+        text = parts[0].strip()
+        tag_raw = parts[1].strip()
+        tag_map = {"호니아": "호니아", "honia": "호니아", "술펀": "술펀", "sulfun": "술펀",
+                   "운명책": "운명책", "book": "운명책", "기타": "기타"}
+        tag = tag_map.get(tag_raw.lower(), tag_raw)
+    if not text:
+        await update.message.reply_text("메모 내용이 비어있어.")
+        return
+    ok, info = await bridge_push_task(text, tag)
+    if ok:
+        await update.message.reply_text(f"📝 대시보드 푸시됨\n• {text} ({tag})")
+    else:
+        await update.message.reply_text(f"⚠️ 푸시 실패: {info}")
+
+async def cmd_memo(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    if not ctx.args:
+        await update.message.reply_text(
+            "형식: `/memo IR 덱 마무리 #호니아`\n또는 `메모: IR 덱 마무리 #호니아`",
+            parse_mode="Markdown"
+        )
+        return
+    await _process_memo(update, " ".join(ctx.args))
 
 async def handle_callback(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
@@ -306,6 +383,13 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     state = load_state()
     waiting = state.get("waiting_for")
 
+    # "메모:" 프리픽스 → 대시보드 푸시
+    lower = text.lower()
+    for prefix in ("메모:", "메모 :", "memo:", "memo :"):
+        if lower.startswith(prefix):
+            await _process_memo(update, text[len(prefix):])
+            return
+
     # 투두 추가 대기 중
     if waiting == "add_text":
         tag = "기타"
@@ -372,12 +456,70 @@ async def evening_job(app):
         parse_mode="Markdown", reply_markup=done_keyboard()
     )
 
+async def morning_brief_job(app):
+    state = load_state()
+    now = datetime.now(ET)
+    today_str = now.strftime("%Y-%m-%d (%a)")
+    theme = WEEKDAY_THEME.get(now.weekday(), "")
+    todos = state.get("todos", [])
+    carried = [t for t in todos if t["status"] != "✅"]
+    lines = ["☀️ *아침 브리핑*", "", f"📅 {today_str}", f"🎯 {theme}", ""]
+    if carried:
+        lines.append(f"이월된 미완료: {len(carried)}개")
+        for t in carried[:8]:
+            lines.append(f"  {t['status']} {t['text']} ({t['tag']})")
+    else:
+        lines.append("이월된 미완료 없음. 깔끔.")
+    await app.bot.send_message(CHAT_ID, "\n".join(lines), parse_mode="Markdown")
+
+async def yoga_reminder_job(app):
+    await app.bot.send_message(CHAT_ID, "🧘 요가 시간! ET 12:00")
+
+async def midnight_check_job(app):
+    state = load_state()
+    todos = state.get("todos", [])
+    incomplete = [t for t in todos if t["status"] != "✅"]
+    if not incomplete:
+        return
+    lines = ["🌙 *자정 체크* — 미완료 태스크 있어:", ""]
+    for t in incomplete[:8]:
+        lines.append(f"  {t['status']} {t['text']} ({t['tag']})")
+    await app.bot.send_message(CHAT_ID, "\n".join(lines), parse_mode="Markdown")
+
+async def bridge_poll_job(app):
+    events = await bridge_pull_events()
+    for ev in events:
+        try:
+            etype = ev.get("type")
+            if etype == "task_saved":
+                tasks = ev.get("tasks", []) or []
+                t_time = ev.get("time", "")
+                lines = ["📋 *대시보드 태스크 저장됨*"]
+                if t_time:
+                    lines.append(f"⏰ {t_time}")
+                for t in tasks[:10]:
+                    if isinstance(t, dict):
+                        line = f"• {t.get('text','')}"
+                        if t.get("tag"):
+                            line += f" #{t['tag']}"
+                        lines.append(line)
+                    elif isinstance(t, str):
+                        lines.append(f"• {t}")
+                await app.bot.send_message(CHAT_ID, "\n".join(lines), parse_mode="Markdown")
+            elif etype == "tg_send":
+                text = ev.get("text", "")
+                if text:
+                    await app.bot.send_message(CHAT_ID, text)
+        except Exception:
+            pass
+
 async def main():
     app = Application.builder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", cmd_start))
     app.add_handler(CommandHandler("morning", cmd_morning))
     app.add_handler(CommandHandler("todos", cmd_todos))
     app.add_handler(CommandHandler("add", cmd_add))
+    app.add_handler(CommandHandler("memo", cmd_memo))
     app.add_handler(CommandHandler("done", cmd_done))
     app.add_handler(CommandHandler("streak", cmd_streak))
     app.add_handler(CallbackQueryHandler(handle_callback))
@@ -385,13 +527,14 @@ async def main():
 
     scheduler = AsyncIOScheduler(timezone=ET)
     scheduler.add_job(morning_job, "cron", hour=6, minute=30, args=[app])
-    scheduler.add_job(nag_job, "cron", hour=8, minute=0, args=[app])
-    scheduler.add_job(nag_job, "cron", hour=10, minute=0, args=[app])
-    scheduler.add_job(nag_job, "cron", hour=12, minute=0, args=[app])
+    scheduler.add_job(morning_brief_job, "cron", hour=8, minute=0, args=[app])
+    scheduler.add_job(yoga_reminder_job, "cron", hour=12, minute=0, args=[app])
     scheduler.add_job(evening_job, "cron", hour=21, minute=0, args=[app])
+    scheduler.add_job(midnight_check_job, "cron", hour=0, minute=0, args=[app])
+    scheduler.add_job(bridge_poll_job, "interval", minutes=1, args=[app])
     scheduler.start()
 
-    print("✅ 수진 코치 봇 v2 시작됨")
+    print("✅ 수진 코치 봇 v3 (Metis 연동) 시작됨")
     await app.initialize()
     await app.start()
     await app.updater.start_polling()
