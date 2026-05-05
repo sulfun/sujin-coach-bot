@@ -536,8 +536,14 @@ async def main():
 
     print("✅ 수진 코치 봇 v3 (Metis 연동) 시작됨")
     await app.initialize()
+    # 다른 인스턴스/웹훅이 getUpdates 점유 중이면 Conflict — 웹훅 제거 + pending 폐기로 독점 확보
+    try:
+        await app.bot.delete_webhook(drop_pending_updates=True)
+        print("🔒 webhook 제거 + pending updates 폐기 완료 (getUpdates 독점)")
+    except Exception as e:
+        print(f"⚠️ delete_webhook 실패 (계속 진행): {e}")
     await app.start()
-    await app.updater.start_polling()
+    await app.updater.start_polling(drop_pending_updates=True)
     await asyncio.Event().wait()
 
 if __name__ == "__main__":
