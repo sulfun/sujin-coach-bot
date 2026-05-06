@@ -71,8 +71,11 @@ exports.handler = async (event) => {
 
   const action = (event.queryStringParameters || {}).action;
   const method = event.httpMethod;
-  // strong consistency — guarantees read-after-write across Lambda invocations (queue semantics)
-  const store = getStore({ name: STORE_NAME, consistency: "strong" });
+  // eventual consistency (default). Strong consistency would require Netlify v2/modern function
+  // format (uncachedEdgeURL is not injected into classic Lambda context via connectLambda).
+  // In practice the dashboard polls every 60s and the bot polls every 60s, so eventual lag
+  // (typically sub-second) is harmless for the queue use case.
+  const store = getStore(STORE_NAME);
 
   try {
     if (action === "push_task" && method === "POST") {
