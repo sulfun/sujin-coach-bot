@@ -1,4 +1,4 @@
-﻿﻿// Metis ↔ 수진 OS — Telegram bridge (Netlify Function, CommonJS)
+﻿﻿﻿// Metis ↔ 수진 OS — Telegram bridge (Netlify Function, CommonJS)
 //
 // All endpoints require header: X-Bridge-Token: <BRIDGE_TOKEN env>
 //
@@ -67,11 +67,7 @@ exports.handler = async (event) => {
   if (!expected) return json(500, { error: "BRIDGE_TOKEN not set" });
 
   const provided = getHeader(event.headers, "x-bridge-token");
-  if (provided !== expected) {
-    // TEMP DIAGNOSTIC — surface length + prefix/suffix mismatch (low entropy leak, will be reverted)
-    const fp = (s) => s ? `${s.length}ch [${s.slice(0,2)}…${s.slice(-2)}]` : "(missing)";
-    return json(401, { error: "unauthorized", got: fp(provided), expected: fp(expected) });
-  }
+  if (provided !== expected) return json(401, { error: "unauthorized" });
 
   const action = (event.queryStringParameters || {}).action;
   const method = event.httpMethod;
