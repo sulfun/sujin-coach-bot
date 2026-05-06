@@ -16,7 +16,7 @@
 //   GET  /.netlify/functions/tg-bridge?action=bot_pull
 //        → return queued events AND clear the queue (bot polls every ~1 min)
 
-const { getStore } = require("@netlify/blobs");
+const { getStore, connectLambda } = require("@netlify/blobs");
 
 const STORE_NAME = "metis-bridge";
 const TASK_QUEUE_KEY = "dashboard:task_queue";
@@ -59,6 +59,10 @@ async function clearQueue(store, key) {
 }
 
 exports.handler = async (event) => {
+  // Hook Blobs into the Lambda invocation context (required for classic CommonJS functions).
+  // Without this, getStore() throws MissingBlobsEnvironmentError on Netlify.
+  try { connectLambda(event); } catch (_) {}
+
   const expected = process.env.BRIDGE_TOKEN;
   if (!expected) return json(500, { error: "BRIDGE_TOKEN not set" });
 
