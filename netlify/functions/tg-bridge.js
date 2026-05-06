@@ -1,4 +1,4 @@
-// Metis ↔ 수진 OS — Telegram bridge (Netlify Function, CommonJS)
+﻿// Metis ↔ 수진 OS — Telegram bridge (Netlify Function, CommonJS)
 //
 // All endpoints require header: X-Bridge-Token: <BRIDGE_TOKEN env>
 //
@@ -71,7 +71,8 @@ exports.handler = async (event) => {
 
   const action = (event.queryStringParameters || {}).action;
   const method = event.httpMethod;
-  const store = getStore(STORE_NAME);
+  // strong consistency — guarantees read-after-write across Lambda invocations (queue semantics)
+  const store = getStore({ name: STORE_NAME, consistency: "strong" });
 
   try {
     if (action === "push_task" && method === "POST") {
