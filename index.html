@@ -99,7 +99,9 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:var(--gold-dim
 .task .t-check.on{background:var(--gold-dim);border-color:var(--gold)}
 .task .t-del{color:var(--muted);font-size:18px;line-height:1;padding:0 4px}
 .task[data-from=telegram]{border-left:3px solid var(--honia)}
+.task[data-from=carry]{border-left:3px solid var(--gold-dim)}
 .task .from-pill{font-size:10px;color:var(--honia);font-family:'DM Mono'}
+.task .from-pill.carry{color:var(--gold-dim)}
 
 /* TIMELINE */
 .tl{display:grid;grid-template-columns:80px 80px 1fr;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--border)}
@@ -333,13 +335,18 @@ function load(){
     const raw = localStorage.getItem(STORE_KEY);
     if(!raw) return seed(defaults());
     const s = {...defaults(), ...JSON.parse(raw)};
-    // rollover: if the stored todayDate is past, archive into history
+    // rollover: if the stored todayDate is past, archive into history AND
+    // carry incomplete tasks forward so yesterday's unfinished work shows up today
     const td = today();
     if(s.todayDate && s.todayDate !== td){
-      const doneCount = (s.tasks||[]).filter(t=>t.done).length;
+      const allTasks = s.tasks || [];
+      const doneCount = allTasks.filter(t=>t.done).length;
       s.history = s.history || {};
-      s.history[s.todayDate] = {tasks:s.tasks||[], evening:s.evening||"", doneCount};
-      s.tasks = [];
+      s.history[s.todayDate] = {tasks: allTasks, evening: s.evening||"", doneCount};
+      // keep incomplete (and non-empty) tasks; mark as carried (preserve telegram origin)
+      s.tasks = allTasks
+        .filter(t => !t.done && t.text)
+        .map(t => ({...t, done:false, from: t.from === "telegram" ? "telegram" : "carry"}));
       s.evening = "";
       s.rawTelegram = "";
       s.todayDate = td;
@@ -528,7 +535,7 @@ function taskRow(t){
     <input class="t-text" data-act="text" value="${esc(t.text)}" />
     <input class="t-time" data-act="time" placeholder="--:--" value="${esc(t.time||"")}" />
     <select class="t-tag" data-act="tag">${TAGS.map(g=>`<option value="${g.id}" ${g.id===t.tag?"selected":""}>${esc(g.label)}</option>`).join("")}</select>
-    ${t.from==="telegram"?`<span class="from-pill">tg</span>`:""}
+    ${t.from==="telegram"?`<span class="from-pill">tg</span>`:t.from==="carry"?`<span class="from-pill carry" title="어제 이월">↻</span>`:""}
     <button class="t-del" data-act="del" title="삭제">×</button>
   </div>`;
 }
